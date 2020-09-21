@@ -16,5 +16,7 @@ os.system('wmic process where "name like \'%DibServer%\'" call terminate')
 
 time.sleep(5)
 app = application.Application()
-app.start('C:\CREON\STARTER\coStarter.exe /prj:cp /id:iamaboy /pwd:u23i45!@ /pwcert:u23i4523!@ /autostart')
+
+# 파이윈오토를 이용하여 크레온 프로그램(coStarter.exe)을 크레온 플러스 모드(/prj:cp)로 자동 시작
+app.start('C:\CREON\STARTER\coStarter.exe /prj:cp /id:iamaboy /pwd:u23i45!@ /pwdcert:u23i4523!@ /autostart')
 time.sleep(60)
