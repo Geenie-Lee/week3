@@ -17,14 +17,15 @@ class StockBaseInfo(QAxWidget):
         # self.market_types = ["5", "8", "10", "0"]
         self.market_types = ["10"]   # Test
         self.base_info_list = []
-        self.target_code_list = ["032190","263750","091990","056190","032500","034950","225190","049520","225330","040420"]
+#         self.target_code_list = ["032190","263750","091990","056190","032500","034950","225190","049520","225330","040420"]
+        self.target_code_list = []
         self.market_type = None
         self.today = (datetime.now()).strftime('%Y%m%d')
         # self.today = "20200616"
         self.stock_number = 0
         self.stock_code = None
         self.stock_name = None
-        self.current_number = 0
+        self.current_number = 1001
         
         self.tr_screen_number = "1000"
         self.login_event_loop = QEventLoop()
@@ -79,36 +80,43 @@ class StockBaseInfo(QAxWidget):
 #                 if cnt <= 1000:
 #                     continue
                 
-                # 지정된 종목만 수집하고자 한다.
-                if self.check_the_stock(code) == True:
-#                     print(">> 종목[%s] 수집" % code)
-                    self.base_info_signal(stock_code=code)
-                    self.daily_info_signal(stock_code=code)
 
-                # 종목의 주식기본정보(opt10001)요청
-                #self.base_info_signal(stock_code=code)
+                # 전체 대상 수집 시 주석 처리 후 아래 주석 해제 필요
+                # 지정된 종목만 수집하고자 한다.
+#                 if self.check_the_stock(code) == True:
+#                     print(">> 종목[%s] 수집" % code)
+#                     self.base_info_signal(stock_code=code)
+#                     self.daily_info_signal(stock_code=code)
+
+
 
                 # 서버에서 과도요청으로 짤랐을 경우
-                if self.current_number > 0 and cnt <= self.current_number:
+                if self.current_number > 0 and cnt < self.current_number:
                     continue
+
+                # 종목의 주식기본정보(opt10001)요청
+                self.base_info_signal(stock_code=code)
                 
                 # 종목의 주식일주월시분(opt10005)요청
                 self.stock_number = cnt
 #                 self.daily_info_signal(stock_code=code)
-#                 print(">> 시장유형[%s] %s/%s번째 종목[%s] 가져오기 완료." % (self.market_type, cnt, len(code_list), code))
+                print(">> 시장유형[%s] %s/%s번째 종목[%s] 가져오기 완료." % (self.market_type, cnt, len(code_list), code))
 
 #                 100건으로 짤라서 DB 입력
-#                 if (cnt % 100) == 0:
-#                     self.insert_base_info_list()
-#                     print(">> 시장유형[%s] 부분 %s건 저장완료." % (self.market_type, cnt))
+                if (cnt % 100) == 0:
+                    self.insert_base_info_list()
+                    self.tr_screen_number = str(int(self.tr_screen_number) + 1)
+                    print(">> 시장유형[%s] 부분 %s건 저장완료(%s)." % (self.market_type, cnt, self.tr_screen_number))
                     
+#             시장유형별로 리스트에 저장된 주식기본정보를 일괄입력방식으로 데이터베이스에 저장
+            self.insert_base_info_list()
+            self.update_day_num()
+            print(">> 시장유형[%s] 잔여 %s건 저장완료." % (self.market_type, cnt))
+                        
             self.stock_number = 0
             print("")
             print("--------------------------------------------------------------------------")        
             print("")
-#             시장유형별로 리스트에 저장된 주식기본정보를 일괄입력방식으로 데이터베이스에 저장
-            self.insert_base_info_list()
-            print(">> 시장유형[%s] 잔여 %s건 저장완료." % (self.market_type, cnt))
 
     def check_the_stock(self, stock_code=None):
         chk = False
@@ -120,7 +128,7 @@ class StockBaseInfo(QAxWidget):
         
     def base_info_signal(self, stock_code=None):
         # print("\n>> base_info_signal.stock_code[%s]" % stock_code)
-        QTest.qWait(3600)
+        QTest.qWait(1000)
         self.dynamicCall("SetInputValue(QString,QString)", "종목코드", stock_code)
         self.dynamicCall("CommRqData(QString,QString,int,QString)", "주식기본정보", "opt10001", 0, self.tr_screen_number)
         self.base_info_event_loop.exec_()
@@ -327,14 +335,23 @@ class StockBaseInfo(QAxWidget):
 
             delete_day_sql = "delete from stock_day_info where stock_code = %s and dt = %s"
             cur.execute(delete_day_sql, (base_info[1], self.today,))
-
-            insert_day_sql = "insert into stock_day_info (stock_code,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            
+            insert_day_sql = "insert into stock_day_info (stock_code,stock_name,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             cur.execute(insert_day_sql, (
-            base_info[1], day_num, self.today, base_info[4], base_info[5], base_info[6], base_info[7], base_info[8],
+            base_info[1], base_info[2], day_num, self.today, base_info[4], base_info[5], base_info[6], base_info[7], base_info[8],
             base_info[9], base_info[3]))
 
         self.base_info_list.clear()
 
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    def update_day_num(self):
+        conn_string = "host='localhost' dbname='postgres' user='postgres' password='postgres' port='5432'"
+        conn = psycopg2.connect(conn_string)
+        cur = conn.cursor()
+        
         # 시장유형의 모든 종목 입력 후 시장유형 별 일봉 순번 갱신
         update_day_sql = """
                             update stock_day_info s
@@ -358,7 +375,7 @@ class StockBaseInfo(QAxWidget):
         conn.commit()
         cur.close()
         conn.close()
-
+        
 
 if __name__ == "__main__":
     StockBaseInfo()

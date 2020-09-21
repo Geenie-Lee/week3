@@ -15,14 +15,24 @@ class Analysis(QAxWidget):
         self.account_number = None
         self.total_days = 0
         self.stock_day_list = []
-        self.target_code_list = ["032190","263750","091990","056190","032500","034950","225190","049520","225330","040420"]
+#         self.target_code_list = ["032190","263750","091990","056190","032500","034950","225190","049520","225330","040420"]
+        self.target_code_list = []
         self.market_type = None
+        self.stock_day_table = "stock_day_kosdaq"
 
         # 종목 일봉 데이터 수집 화면번호 지정
         self.stock_day_screen_number = "4000"
+        
+        # 짤려서 현재 실행할 순번 1001, 569
+        self.current_day = 1001
+        
+        # 수집 대상 기간 일수
+        self.days = 6
 
         # 로그인 Event Loop 실행
         self.login_event_loop = QEventLoop()
+
+        
         self.day_info_event_loop = QEventLoop()
 
         # Kiwoom OCX 사용 함수 호출
@@ -62,11 +72,14 @@ class Analysis(QAxWidget):
         print(">> 계좌번호: %s" % self.account_number)
 
     def get_code_list_by_market(self):
-        # 수집 대상 시장 구분(0:장내, 10:코스닥, 3:ELW, 8:ETF, 50:KONEX, 4: 뮤추얼펀드, 5:신주인수권, 6:리츠, 9:하이얼펀드, 30:K-OTC)
-        market_type = ["10"]
+        # 수집 대상 시장 구분(0:장내 (1562), 10:코스닥 (1434), 3:ELW (3335), 8:ETF (450), 50:KONEX (145), 30:K-OTC (139), 4: 뮤추얼펀드, 5:신주인수권, 6:리츠, 9:하이얼펀드)
+        # "8", "50", "30", "10", "0"
+        market_type = ["0"]
         for i in range(len(market_type)):
             print("\n>> 시장구분[%s]의 종목 가져오기 실행" % market_type[i])
             self.market_type = market_type[i]
+            self.set_table()
+                
             stock_codes = self.dynamicCall("GetCodeListByMarket(QString)",market_type[i])
             stock_code_list = stock_codes.split(";")[:-1]
 
@@ -82,17 +95,18 @@ class Analysis(QAxWidget):
                 # 종목명 가져오기
                 stock_code_name = self.get_master_code_name(stock_code)
 
-                # 62번 부터 시작(새벽 시스템점검으로 인한 접속 불가)
-                # if cnt <= 1076:
-                #     print(">> 번호.%s 종목[%s][%s] 수집 및 저장 Skip 처리함" % (cnt, stock_code, stock_code_name))
-                #     continue
+                # 1106번 부터 시작(새벽 시스템점검으로 인한 접속 불가)
+                if cnt < self.current_day:
+                    print(">> 번호.%s 종목[%s][%s] 수집 및 저장 Skip 처리함" % (cnt, stock_code, stock_code_name))
+                    continue
 
                 # 종목의 일봉 데이터 가져오기
                 self.total_days = 0
                 
+                
                 if self.check_the_stock(stock_code) == True:
                     self.get_day_info_by_stock(stock_code=stock_code)
-                    print(">> %s/%s번째 종목[%s][%s] [%s]일봉 수집완료" % (cnt,len(stock_code_list),stock_code,stock_code_name,self.total_days))
+                    # print(">> %s/%s번째 종목[%s][%s] [%s]일봉 수집완료" % (cnt,len(stock_code_list),stock_code,stock_code_name,self.total_days))
     
                     # 하나의 종목이 완료되면 데이터베이스에 저장한다.
                     self.insert_stock_day_list()
@@ -101,16 +115,40 @@ class Analysis(QAxWidget):
                     # 초기화
                     self.stock_day_list = []
                     # print(">> self.stock_day_list 초기화(%s))" % len(self.stock_day_list))
-
-                if cnt == len(stock_code_list):
-                    print("-------------------------------------------------------------------------------")
+                
+                if cnt % 100 == 0:
+                    self.stock_day_screen_number = str(int(self.stock_day_screen_number) + 1)
+                    # print(">> self.stock_day_screen_number = %s" % self.stock_day_screen_number)
+                    
+            self.update_day_num()
+            self.current_day = 0
+            print("------------------------------------- end ------------------------------------------[%s]" % market_type)
 
     def check_the_stock(self, stock_code=None):
+        if len(self.target_code_list) == 0:
+            return True
+            
         chk = False
         for target_code in self.target_code_list:
             if target_code == stock_code:
                 chk = True
         return chk
+
+    def set_table(self):
+        if self.market_type == '0':
+            self.stock_day_table = 'stock_day_kospi'
+        elif self.market_type == '3':
+            self.stock_day_table = 'stock_day_elw'
+        elif self.market_type == '8':
+            self.stock_day_table = 'stock_day_etf'
+        elif self.market_type == '10':
+            self.stock_day_table = 'stock_day_kosdaq'
+        elif self.market_type == '30':
+            self.stock_day_table = 'stock_day_kotc'
+        elif self.market_type == '50':
+            self.stock_day_table = 'stock_day_konex'
+        else:
+            self.stock_day_table = 'stock_day_info'
 
     def get_master_code_name(self, stock_code):
         return self.dynamicCall("GetMasterCodeName(QString)", stock_code)
@@ -130,6 +168,9 @@ class Analysis(QAxWidget):
     def trdata_slot(self, screen_number, tr_name, tr_code, record_name, sPrevNext):
         # 싱글데이터[주식일봉차트] 가져오기
         stock_code = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "종목코드").strip()
+        
+        # 종목명 가져오기
+        stock_name = self.get_master_code_name(stock_code)
 
         # 멀티데이터 일봉 차트 가져오기
         multi_cnt = self.dynamicCall("GetRepeatCnt(QString,QString)", tr_code, tr_name)
@@ -144,11 +185,14 @@ class Analysis(QAxWidget):
             high_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, i, "고가").strip()
             low_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, i, "저가").strip()
 
-            # print(">> %s,%s,%s,%s,%s,%s,%s,%s,%s " % ((i+1),stock_code,date,close_price,open_price,high_price,low_price,volume,trading_value))
+            if close_price == '0':
+                volume = '0'
+
             self.total_days = self.total_days + 1
 
             data.append("")
             data.append(stock_code)
+            data.append(stock_name)
             data.append(date)
             data.append(volume)
             data.append(trading_value)
@@ -160,6 +204,14 @@ class Analysis(QAxWidget):
             data.append("")
 
             self.stock_day_list.append(data.copy())
+
+            # if int(volume) > 10000000:
+            #     print("%s, %s, %s, %s, %s, %s, %s, %s, %s " % (date,stock_code,stock_name,open_price,high_price,low_price,close_price,volume,trading_value))
+
+            if self.total_days == self.days:
+#                 print(">> %s,%s,%s,%s,%s,%s,%s,%s,%s " % ((i+1),stock_code,date,close_price,open_price,high_price,low_price,volume,trading_value))
+                sPrevNext = "0"
+                break
 
         if sPrevNext == "2":
             self.get_day_info_by_stock(stock_code=stock_code, sPrevNext=sPrevNext)
@@ -173,10 +225,42 @@ class Analysis(QAxWidget):
 
         day_num = 0
         for stock_day in self.stock_day_list:
+            
+            delete_day_sql = "delete from "+self.stock_day_table+" where stock_code = %s and dt = %s"
+            cur.execute(delete_day_sql, (stock_day[1], stock_day[3],))
+            
             day_num = day_num + 1
-            sql = "insert into stock_day_info (stock_code,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-            cur.execute(sql,(stock_day[1],day_num,stock_day[2],stock_day[3],stock_day[4],stock_day[5],stock_day[6],stock_day[7],stock_day[8],stock_day[9]))
+            sql = "insert into "+self.stock_day_table+" (stock_code,stock_name,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            cur.execute(sql,(stock_day[1],stock_day[2],day_num,stock_day[3],stock_day[4],stock_day[5],stock_day[6],stock_day[7],stock_day[8],stock_day[9],stock_day[10]))
 
         conn.commit()
         cur.close()
         conn.close()
+        
+    def update_day_num(self):
+        conn_string = "host='localhost' dbname='postgres' user='postgres' password='postgres' port='5432'"
+        conn = psycopg2.connect(conn_string)
+        cur = conn.cursor()
+        
+        # 시장유형의 모든 종목 입력 후 시장유형 별 일봉 순번 갱신
+        update_day_sql  = " update "+self.stock_day_table+" s                                                     "
+        update_day_sql += "    set day_num = a.day_num                                                            "
+        update_day_sql += "   from                                                                                "
+        update_day_sql += "      (                                                                                "
+        update_day_sql += "        select row_number() over(partition by stock_code order by dt desc) as day_num  "
+        update_day_sql += "             , stock_code                                                              "
+        update_day_sql += "             , dt                                                                      "
+        update_day_sql += "             , market_type                                                             "
+        update_day_sql += "          from "+self.stock_day_table+"                                                "
+        update_day_sql += "         where market_type = %s                                                        "
+        update_day_sql += "      ) as a                                                                           "
+        update_day_sql += "  where s.stock_code = a.stock_code                                                    "
+        update_day_sql += "    and s.dt = a.dt                                                                    "
+        update_day_sql += "    and s.market_type = a.market_type                                                  "
+        update_day_sql += "    and s.market_type = %s                                                             "
+        
+        cur.execute(update_day_sql, (self.market_type, self.market_type,))
+
+        conn.commit()
+        cur.close()
+        conn.close()        

@@ -10,7 +10,7 @@ class Main():
         print(">> class Main() start.")
         self.app = QApplication(sys.argv)
         self.anal = Analysis()
-        self.base = StockBaseInfo()
+#         self.base = StockBaseInfo()
         # self.real = TheReal()
         self.app.exec_()
 

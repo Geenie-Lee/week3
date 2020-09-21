@@ -4,8 +4,8 @@ drop table stock_base_info cascade;
 create table stock_base_info (
 	   stock_code varchar(20) not null
 	 , stock_name varchar(200) not null
-	 , dt varchar(8)
 	 , market_type varchar(2) not null
+	 , dt varchar(8)
 	 , volume integer default 0 not null
 	 , last_price bigint default 0 not null
 	 , close_price integer default 0 not null
@@ -27,29 +27,14 @@ create table stock_base_info (
 );
 
 
-select * from stock_base_info where market_type = '8';
-
-select * from stock_day_info where market_type = '8' and stock_code = '342610' order by day_num ;
-
 drop table stock_day_info cascade;
-
-
-select * from stock_day_info where market_type = '6' order by stock_code, day_num ;
-
-update stock_day_info set day_num = day_num - 3 where market_type = '6' and day_num > 1;
-
-update stock_day_info set day_num = day_num+1 where market_type = '6' and dt <> '20200615';
-
-commit;
-
-select * from stock_day_info where market_type = '5' order by stock_code, day_num ;
-
 
 create table stock_day_info (
 	   stock_code varchar(20) not null
+	 , stock_name varchar(200) not null
+	 , market_type varchar(2) not null
 	 , day_num integer not null
 	 , dt varchar(8) not null
-	 , market_type varchar(2) not null
 	 , volume integer default 0 not null
 	 , trading_value bigint default 0 not null
 	 , close_price integer default 0 not null
@@ -57,7 +42,6 @@ create table stock_day_info (
 	 , high_price integer default 0 not null
 	 , low_price integer default 0 not null
 );
-
 
 select stock_code
      , ma_120
