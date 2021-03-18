@@ -20,7 +20,7 @@ class Minute(QAxWidget):
         self.stock_minute_table = "stock_"+self.minute_type+"min_kosdaq"
 
         self.stock_minute_screen_number = "5000"
-        self.current_order = 530
+        self.current_order = 0
 
         # 20일 기준(1hour = 60(minutes) * 6(hours) + 30(minutes) = 390 * 20(days) = 7800)
         # 30분봉 = 1일(14봉)
@@ -68,7 +68,7 @@ class Minute(QAxWidget):
     def get_code_list_by_market(self):
         # 수집 대상 시장 구분(0:장내 (1562), 10:코스닥 (1434), 3:ELW (3335), 8:ETF (450), 50:KONEX (145), 30:K-OTC (139), 4: 뮤추얼펀드, 5:신주인수권, 6:리츠, 9:하이얼펀드)
         # "8", "50", "30", "10", "0"
-        market_type = ["10"]
+        market_type = ["3"]
         for i in range(len(market_type)):
             print("\n>> 시장구분[%s]의 종목 가져오기 실행" % market_type[i])
             self.market_type = market_type[i]
@@ -88,6 +88,9 @@ class Minute(QAxWidget):
 
                 # 종목명 가져오기
                 stock_code_name = self.get_master_code_name(stock_code)
+
+                if self.market_type == '3' and (not (stock_code_name.startswith('한국G1') or stock_code_name.startswith('한국FP')) or stock_code_name.find('KOSPI200') == -1):
+                    continue
 
                 # 0000번 부터 시작(새벽 시스템점검으로 인한 접속 불가)
                 if cnt < self.current_order:

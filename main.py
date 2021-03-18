@@ -15,8 +15,8 @@ class Main():
     def __init__(self):
         self.app = QApplication(sys.argv)
 
-        self.anal = Analysis()
-        # self.minute = Minute()
+        # self.anal = Analysis()
+        self.minute = Minute()
         # self.month = Month()
         # self.week = Week()
         # self.base = StockBaseInfo()
