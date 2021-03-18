@@ -99,7 +99,7 @@ class Analysis(QAxWidget):
 
                 # 종목명 가져오기
                 stock_code_name = self.get_master_code_name(stock_code)
-                if self.market_type == '3' and (not stock_code_name.startswith('한국') or stock_code_name.find('KOSPI200') == -1):
+                if self.market_type == '3' and (not (stock_code_name.startswith('한국G1') or stock_code_name.startswith('한국FP')) or stock_code_name.find('KOSPI200') == -1):
                     continue
 
                 # 1106번 부터 시작(새벽 시스템점검으로 인한 접속 불가)
