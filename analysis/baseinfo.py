@@ -15,7 +15,7 @@ class StockBaseInfo(QAxWidget):
         # [시장구분값] (0:장내, 10:코스닥, 3:ELW, 8:ETF, 50:KONEX, 4: 뮤추얼펀드, 5:신주인수권, 6:리츠, 9:하이얼펀드, 30:K-OTC)
         # self.market_types = ["0", "10", "3", "8", "50", "4", "5", "6", "9", "30"]
         # self.market_types = ["5", "8", "10", "0"]
-        self.market_types = ["10"]   # Test
+        self.market_types = ["0"]   # "10", "0"
         self.base_info_list = []
 #         self.target_code_list = ["032190","263750","091990","056190","032500","034950","225190","049520","225330","040420"]
         self.target_code_list = []
@@ -25,7 +25,9 @@ class StockBaseInfo(QAxWidget):
         self.stock_number = 0
         self.stock_code = None
         self.stock_name = None
-        self.current_number = 1001
+        
+        # 수집 시작 번호
+        self.current_number = 0
         
         self.tr_screen_number = "1000"
         self.login_event_loop = QEventLoop()
@@ -100,7 +102,7 @@ class StockBaseInfo(QAxWidget):
                 # 종목의 주식일주월시분(opt10005)요청
                 self.stock_number = cnt
 #                 self.daily_info_signal(stock_code=code)
-                print(">> 시장유형[%s] %s/%s번째 종목[%s] 가져오기 완료." % (self.market_type, cnt, len(code_list), code))
+#                 print(">> 시장유형[%s] %s/%s번째 종목[%s] 가져오기 완료." % (self.market_type, cnt, len(code_list), code))
 
 #                 100건으로 짤라서 DB 입력
                 if (cnt % 100) == 0:
@@ -148,127 +150,125 @@ class StockBaseInfo(QAxWidget):
 
     def base_info_slot(self, screen_number, tr_name, tr_code, record_name, prev_next):
         if tr_code == "opt10001":
-            opt10001_01 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "종목코드").strip()
-            opt10001_02 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "종목명").strip()
-            opt10001_03 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "결산월").strip()
-            opt10001_04 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "액면가").strip()
-            opt10001_05 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "자본금").strip()
-            opt10001_06 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "상장주식").strip()
-            opt10001_07 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "신용비율").strip()
-            opt10001_08 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "연중최고").strip()
-            opt10001_09 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "연중최저").strip()
-            opt10001_10 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가총액").strip()
-            opt10001_11 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가총액비중").strip()
-            opt10001_12 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "외진소진율").strip()
-            opt10001_13 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "대용가").strip()
-            opt10001_14 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "PER").strip()
-            opt10001_15 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "EPS").strip()
-            opt10001_16 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "ROE").strip()
-            opt10001_17 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "PBR").strip()
-            opt10001_18 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "EV").strip()
-            opt10001_19 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "BPS").strip()
-            opt10001_20 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "매출액").strip()
-            opt10001_21 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "영업이익").strip()
-            opt10001_22 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "당기순이익").strip()
-            opt10001_23 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고").strip()
-            opt10001_24 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저").strip()
-            opt10001_25 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가").strip()
-            opt10001_26 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "고가").strip()
-            opt10001_27 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "저가").strip()
-            opt10001_28 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "상한가").strip()
-            opt10001_29 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "하한가").strip()
-            opt10001_30 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "기준가").strip()
-            opt10001_31 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "예상체결가").strip()
-            opt10001_32 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "예상체결수량").strip()
-            opt10001_33 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고가일").strip()
-            opt10001_34 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고가대비율").strip()
-            opt10001_35 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저가일").strip()
-            opt10001_36 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저가대비율").strip()
-            opt10001_37 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "현재가").strip()
-            opt10001_38 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "대비기호").strip()
-            opt10001_39 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "전일대비").strip()
-            opt10001_40 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "등락율").strip()
-            opt10001_41 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "거래량").strip()
-            opt10001_42 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "거래대비").strip()
-            opt10001_43 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "액면가단위").strip()
-            opt10001_44 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "유통주식").strip()
-            opt10001_45 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "유통비율").strip()
-
-            # print(">>>>> 종목코드: [%s]" % opt10001_01)
-            # print(">>>>> 종목명: [%s]" % opt10001_02)
-            # print(">>>>> 결산월: [%s]" % opt10001_03)
-            # print(">>>>> 액면가: [%s]" % opt10001_04)
-            # print(">>>>> 자본금: [%s]" % opt10001_05)
-            # print(">>>>> 상장주식: [%s]" % opt10001_06)
-            # print(">>>>> 신용비율: [%s]" % opt10001_07)
-            # print(">>>>> 연중최고: [%s]" % opt10001_08)
-            # print(">>>>> 연중최저: [%s]" % opt10001_09)
-            # print(">>>>> 시가총액: [%s]" % opt10001_10)
-            # print(">>>>> 시가총액비중: [%s]" % opt10001_11)
-            # print(">>>>> 외진소진율: [%s]" % opt10001_12)
-            # print(">>>>> 대용가: [%s]" % opt10001_13)
-            # print(">>>>> PER: [%s]" % opt10001_14)
-            # print(">>>>> EPS: [%s]" % opt10001_15)
-            # print(">>>>> ROE: [%s]" % opt10001_16)
-            # print(">>>>> PBR: [%s]" % opt10001_17)
-            # print(">>>>> EV: [%s]" % opt10001_18)
-            # print(">>>>> BPS: [%s]" % opt10001_19)
-            # print(">>>>> 매출액: [%s]" % opt10001_20)
-            # print(">>>>> 영업이익: [%s]" % opt10001_21)
-            # print(">>>>> 당기순이익: [%s]" % opt10001_22)
-            # print(">>>>> 250최고: [%s]" % opt10001_23)
-            # print(">>>>> 250최저: [%s]" % opt10001_24)
-            # print(">>>>> 시가: [%s]" % opt10001_25)
-            # print(">>>>> 고가: [%s]" % opt10001_26)
-            # print(">>>>> 저가: [%s]" % opt10001_27)
-            # print(">>>>> 상한가: [%s]" % opt10001_28)
-            # print(">>>>> 하한가: [%s]" % opt10001_29)
-            # print(">>>>> 기준가: [%s]" % opt10001_30)
-            # print(">>>>> 예상체결가: [%s]" % opt10001_31)
-            # print(">>>>> 예상체결수량: [%s]" % opt10001_32)
-            # print(">>>>> 250최고가일: [%s]" % opt10001_33)
-            # print(">>>>> 250최고가대비율: [%s]" % opt10001_34)
-            # print(">>>>> 250최저가일: [%s]" % opt10001_35)
-            # print(">>>>> 250최저가대비율: [%s]" % opt10001_36)
-            # print(">>>>> 현재가: [%s]" % opt10001_37)
-            # print(">>>>> 대비기호: [%s]" % opt10001_38)
-            # print(">>>>> 전일대비: [%s]" % opt10001_39)
-            # print(">>>>> 등락율: [%s]" % opt10001_40)
-            # print(">>>>> 거래량: [%s]" % opt10001_41)
-            # print(">>>>> 거래대비: [%s]" % opt10001_42)
-            # print(">>>>> 액면가단위: [%s]" % opt10001_43)
-            # print(">>>>> 유통주식: [%s]" % opt10001_44)
-            # print(">>>>> 유통비율: [%s]" % opt10001_45)
-
+            stock_code = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "종목코드").strip()
+            stock_name = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "종목명").strip()
+            settlement_month = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "결산월").strip()
+            face_value = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "액면가").strip()
+            capital = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "자본금").strip()
+            listed_stock = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "상장주식").strip()
+            credit_ratio = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "신용비율").strip()
+            record_high = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "연중최고").strip()
+            record_low = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "연중최저").strip()
+            market_capitalization = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가총액").strip()
+            market_capitalization_weight = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가총액비중").strip()
+            foreigner_burnout_rate = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "외인소진률").strip()
+            substitute_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "대용가").strip()
+            price_earnings_ratio = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "PER").strip()
+            earnings_per_share = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "EPS").strip()
+            return_on_equity = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "ROE").strip()
+            price_on_book_value_ratio = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "PBR").strip()
+            enterprise_value = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "EV").strip()
+            bookvalue_per_share = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "BPS").strip()
+            turnover = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "매출액").strip()
+            business_profit = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "영업이익").strip()
+            net_profit = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "당기순이익").strip()
+            high_price_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고").strip()
+            low_price_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저").strip()
+            open_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "시가").strip()
+            high_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "고가").strip()
+            low_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "저가").strip()
+            upper_limit_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "상한가").strip()
+            lower_limit_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "하한가").strip()
+            standard_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "기준가").strip()
+            estimated_settlement_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "예상체결가").strip()
+            estimated_settlement_amount = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "예상체결수량").strip()
+            high_price_date_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고가일").strip()
+            high_price_ratio_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최고가대비율").strip()
+            low_price_date_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저가일").strip()
+            low_price_ratio_250 = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "250최저가대비율").strip()
+            close_price = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "현재가").strip()
+            contrast_symbol = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "대비기호").strip()
+            net_change = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "전일대비").strip()
+            fluctuation_rate = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "등락율").strip()
+            volume = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "거래량").strip()
+            trade_contrast = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "거래대비").strip()
+            face_value_unit = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "액면가단위").strip()
+            outstanding_stock = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "유통주식").strip()
+            distribution_ratio = self.dynamicCall("GetCommData(QString,QString,int,QString)", tr_code, tr_name, 0, "유통비율").strip()
+            market_type = self.market_type
+            dt = self.today
+            
             # 가져온 종목 정보는 이중리스트에 저장한 후 데이터베이스에 저장한다.
             # 데이터베이스에는 기본정보 테이블에 삭제 후 저장하고 일봉정보에 당일자로 삭제 후 저장한다.
             base_info = []
 
             base_info.append("")
-            base_info.append(opt10001_01)
-            base_info.append(opt10001_02)
-            base_info.append(self.market_type)
-            base_info.append(opt10001_41)
-            base_info.append(abs(int(opt10001_30)))
-            base_info.append(abs(int(opt10001_37)))
-            base_info.append(abs(int(opt10001_25)))
-            base_info.append(abs(int(opt10001_26)))
-            base_info.append(abs(int(opt10001_27)))
-            base_info.append(opt10001_14)
-            base_info.append(opt10001_15)
-            base_info.append(opt10001_16)
-            base_info.append(opt10001_17)
-            base_info.append(opt10001_19)
-            base_info.append(opt10001_06)
-            base_info.append(opt10001_44)
-            base_info.append(opt10001_03)
-            base_info.append(opt10001_10)
-            base_info.append(opt10001_20)
-            base_info.append(opt10001_21)
-            base_info.append(opt10001_22)
+            base_info.append(stock_code)
+            base_info.append(stock_name)
+            base_info.append(self.to_int(settlement_month))
+            base_info.append(self.to_float(face_value))
+            base_info.append(self.to_int(capital))
+            base_info.append(self.to_int(listed_stock))
+            base_info.append(self.to_float(credit_ratio))
+            base_info.append(self.to_float(record_high))
+            base_info.append(self.to_float(record_low))
+            base_info.append(self.to_int(market_capitalization))
+            base_info.append(self.to_int(market_capitalization_weight))
+            base_info.append(self.to_float(foreigner_burnout_rate))
+            base_info.append(self.to_int(substitute_price))
+            base_info.append(self.to_float(price_earnings_ratio))
+            base_info.append(self.to_int(earnings_per_share))
+            base_info.append(self.to_float(return_on_equity))
+            base_info.append(self.to_float(price_on_book_value_ratio))
+            base_info.append(self.to_float(enterprise_value))
+            base_info.append(self.to_int(bookvalue_per_share))
+            base_info.append(self.to_int(turnover))
+            base_info.append(self.to_int(business_profit))
+            base_info.append(self.to_int(net_profit))
+            base_info.append(self.to_int(high_price_250))
+            base_info.append(self.to_int(low_price_250))
+            base_info.append(self.to_int(open_price))
+            base_info.append(self.to_int(high_price))
+            base_info.append(self.to_int(low_price))
+            base_info.append(self.to_int(upper_limit_price))
+            base_info.append(self.to_int(lower_limit_price))
+            base_info.append(int(standard_price))
+            base_info.append(self.to_int(estimated_settlement_price))
+            base_info.append(self.to_int(estimated_settlement_amount))
+            base_info.append(high_price_date_250)
+            base_info.append(self.to_float(high_price_ratio_250))
+            base_info.append(low_price_date_250)
+            base_info.append(self.to_float(low_price_ratio_250))
+            base_info.append(self.to_int(close_price))
+            base_info.append(self.to_int(contrast_symbol))
+            base_info.append(self.to_int(net_change))
+            base_info.append(self.to_float(fluctuation_rate))
+            base_info.append(self.to_int(volume))
+            base_info.append(self.to_float(trade_contrast))
+            base_info.append(face_value_unit)
+            base_info.append(self.to_int(outstanding_stock))
+            base_info.append(self.to_float(distribution_ratio))
+            base_info.append(market_type)
+            base_info.append(dt)
             base_info.append("")
+            
             # print(base_info)
             self.base_info_list.append(base_info.copy())
+
+            print(
+                "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.stock_number+1,
+                    stock_code,stock_name,settlement_month,face_value,capital,
+                    listed_stock,credit_ratio,record_high,record_low,market_capitalization,
+                    market_capitalization_weight,foreigner_burnout_rate,substitute_price,price_earnings_ratio,earnings_per_share,
+                    return_on_equity,price_on_book_value_ratio,enterprise_value,bookvalue_per_share,turnover,
+                    business_profit,net_profit,high_price_250,low_price_250,open_price,
+                    high_price,low_price,upper_limit_price,lower_limit_price,standard_price,
+                    estimated_settlement_price,estimated_settlement_amount,high_price_date_250,high_price_ratio_250,low_price_date_250,
+                    low_price_ratio_250,close_price,contrast_symbol,net_change,fluctuation_rate,
+                    volume,trade_contrast,face_value_unit,outstanding_stock,distribution_ratio,
+                    market_type,dt
+                    ))
+
         elif tr_code == "opt10005":
             rows = self.dynamicCall("GetRepeatCnt(QString,QString)", tr_code, record_name)
             # print("> %s %s %s rows: %s" % (tr_code, screen_number, prev_next, rows))
@@ -328,24 +328,38 @@ class StockBaseInfo(QAxWidget):
             delete_base_sql = "delete from stock_base_info where stock_code = %s"
             cur.execute(delete_base_sql, (base_info[1],))
 
-            insert_base_sql = "insert into stock_base_info (stock_code,stock_name,dt,market_type,volume,last_price,close_price,open_price,high_price,low_price,per,eps,roe,pbr,bps,listed_stocks,outstanding_stocks,settlement_m,market_capitalization,turnover,business_profit,net_profit) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            insert_base_sql = "insert into stock_base_info(stock_code,stock_name,settlement_month,face_value,capital,listed_stock,credit_ratio,record_high,record_low,market_capitalization,market_capitalization_weight,foreigner_burnout_rate,substitute_price,price_earnings_ratio,earnings_per_share,return_on_equity,price_on_book_value_ratio,enterprise_value,bookvalue_per_share,turnover,business_profit,net_profit,high_price_250,low_price_250,open_price,high_price,low_price,upper_limit_price,lower_limit_price,standard_price,estimated_settlement_price,estimated_settlement_amount,high_price_date_250,high_price_ratio_250,low_price_date_250,low_price_ratio_250,close_price,contrast_symbol,net_change,fluctuation_rate,volume,trade_contrast,face_value_unit,outstanding_stock,distribution_ratio,market_type,dt) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             cur.execute(insert_base_sql, (
-            base_info[1], base_info[2], self.today, base_info[3], base_info[4], base_info[5], base_info[6], base_info[7],
-            base_info[8], base_info[9], base_info[10], base_info[11], base_info[12], base_info[13], base_info[14], base_info[15], base_info[16], base_info[17], base_info[18], base_info[19], base_info[20], base_info[21]))
+            base_info[1],  base_info[2],  base_info[3],  base_info[4],  base_info[5],  base_info[6],  base_info[7],  base_info[8],  base_info[9],  base_info[10], 
+            base_info[11], base_info[12], base_info[13], base_info[14], base_info[15], base_info[16], base_info[17], base_info[18], base_info[19], base_info[20], 
+            base_info[21], base_info[22], base_info[23], base_info[24], base_info[25], base_info[26], base_info[27], base_info[28], base_info[29], base_info[30],
+            base_info[31], base_info[32], base_info[33], base_info[34], base_info[35], base_info[36], base_info[37], base_info[38], base_info[39], base_info[40],
+            base_info[41], base_info[42], base_info[43], base_info[44], base_info[45], base_info[46], base_info[47]
+            ))
 
-            delete_day_sql = "delete from stock_day_info where stock_code = %s and dt = %s"
-            cur.execute(delete_day_sql, (base_info[1], self.today,))
-            
-            insert_day_sql = "insert into stock_day_info (stock_code,stock_name,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-            cur.execute(insert_day_sql, (
-            base_info[1], base_info[2], day_num, self.today, base_info[4], base_info[5], base_info[6], base_info[7], base_info[8],
-            base_info[9], base_info[3]))
+#             delete_day_sql = "delete from stock_day_info where stock_code = %s and dt = %s"
+#             cur.execute(delete_day_sql, (base_info[1], self.today,))
+#             
+#             insert_day_sql = "insert into stock_day_info (stock_code,stock_name,day_num,dt,volume,trading_value,close_price,open_price,high_price,low_price,market_type) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+#             cur.execute(insert_day_sql, (
+#             base_info[1], base_info[2], day_num, self.today, base_info[4], base_info[5], base_info[6], base_info[7], base_info[8],
+#             base_info[9], base_info[3]))
 
         self.base_info_list.clear()
 
         conn.commit()
         cur.close()
         conn.close()
+
+    def to_int(self, val):
+        if val == '': val = 0
+        else: val = int(val.lstrip('+').lstrip('-'))
+        return val
+        
+    def to_float(self, val):
+        if val == '': val = 0.0
+        else: val = float(val.lstrip('+').lstrip('-'))
+        return val
 
     def update_day_num(self):
         conn_string = "host='localhost' dbname='postgres' user='postgres' password='postgres' port='5432'"

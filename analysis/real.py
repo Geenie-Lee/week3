@@ -50,6 +50,7 @@ class StockMon(QAxWidget):
         print(">> 로그인 상태(0:연결안됨, 1:연결): %s" % login_status)
         if login_status == "1":
             self.account_number = self.dynamicCall("GetLoginInfo(QString)", "ACCNO").split(";")[0]
+            print(self.account_number)
         self.login_event_loop.exit()
 
     def real_signal(self):
