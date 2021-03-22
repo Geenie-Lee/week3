@@ -1,0 +1,15 @@
+README.md
+setup.cfg
+setup.py
+psypg/__init__.py
+psypg/psypg_wrap.py
+psypg.egg-info/._PKG-INFO
+psypg.egg-info/._SOURCES.txt
+psypg.egg-info/._dependency_links.txt
+psypg.egg-info/._requires.txt
+psypg.egg-info/._top_level.txt
+psypg.egg-info/PKG-INFO
+psypg.egg-info/SOURCES.txt
+psypg.egg-info/dependency_links.txt
+psypg.egg-info/requires.txt
+psypg.egg-info/top_level.txt

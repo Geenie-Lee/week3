@@ -16,7 +16,7 @@ class Minute(QAxWidget):
         self.stock_minute_list = []
         self.target_code_list = []
         self.market_type = None
-        self.minute_type = "30"
+        self.minute_type = "5"
         self.stock_minute_table = "stock_"+self.minute_type+"min_kosdaq"
 
         self.stock_minute_screen_number = "5000"
@@ -24,7 +24,8 @@ class Minute(QAxWidget):
 
         # 20일 기준(1hour = 60(minutes) * 6(hours) + 30(minutes) = 390 * 20(days) = 7800)
         # 30분봉 = 1일(14봉)
-        self.minutes = 42
+        # 05분봉 = 1일(78봉)
+        self.minutes = 78
 
         self.login_event_loop = QEventLoop()
         self.minute_info_event_loop = QEventLoop()
