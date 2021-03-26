@@ -8,7 +8,6 @@ import psycopg2
 class Minute(QAxWidget):
     def __init__(self):
         super().__init__()
-        print(">> class Minute(QAxWidget) start.")
 
         # 전역변수 모음
         self.account_number = None
@@ -47,7 +46,6 @@ class Minute(QAxWidget):
 
     def get_ocx_instance(self):
         self.setControl("KHOPENAPI.KHOpenAPICtrl.1")
-        print(">> Kiwoom OCX KHOPENAPI.KHOpenAPICtrl.1 setControl")
 
     def event_slots(self):
         self.OnEventConnect.connect(self.login_event_slot)
@@ -58,7 +56,7 @@ class Minute(QAxWidget):
         self.login_event_loop.exec_()
 
     def login_event_slot(self, error_code):
-        print(">> 로그인 결과: [%s]%s" % (errors(error_code)[0], errors(error_code)[1]))
+        # print(">> 로그인 결과: [%s]%s" % (errors(error_code)[0], errors(error_code)[1]))
         self.login_event_loop.exit()
 
     def get_login_info(self):
@@ -90,7 +88,8 @@ class Minute(QAxWidget):
                 # 종목명 가져오기
                 stock_code_name = self.get_master_code_name(stock_code)
 
-                if self.market_type == '3' and (not (stock_code_name.startswith('한국G1') or stock_code_name.startswith('한국FP')) or stock_code_name.find('KOSPI200') == -1):
+                if self.market_type == '3' and (not (stock_code_name.startswith('한국G166') or stock_code_name.startswith('한국G188') or stock_code_name.startswith('한국G194')) or stock_code_name.find('KOSPI200') == -1):
+                # if self.market_type == '3' and (not (stock_code_name.startswith('한국G1') or stock_code_name.startswith('한국FP')) or stock_code_name.find('KOSPI200') == -1):
                     continue
 
                 # 0000번 부터 시작(새벽 시스템점검으로 인한 접속 불가)
