@@ -29,11 +29,10 @@ class Analysis(QAxWidget):
         # 2020-10-08 22:58 ~ 2020-10-09 00:30 완료
         # 2020-10-12 MON
         # 2020-10-13 TUE 20:01 ~
-        # 2021-03-28 (10:341~)
-        self.current_day = 1001
+        self.current_day = 0
 
-        # 수집 대상 기간 일수 (P"3/25)
-        self.days = 3
+        # 수집 대상 기간 일수
+        self.days = 60
 
         # 로그인 Event Loop 실행
         self.login_event_loop = QEventLoop()
@@ -80,7 +79,7 @@ class Analysis(QAxWidget):
     def get_code_list_by_market(self):
         # 수집 대상 시장 구분(0:장내 (1562), 10:코스닥 (1434), 3:ELW (3335), 8:ETF (450), 50:KONEX (145), 30:K-OTC (139), 4: 뮤추얼펀드, 5:신주인수권, 6:리츠, 9:하이얼펀드)
         # "8", "50", "30", "10", "0"
-        market_type = ["10"]
+        market_type = ["3"]
         for i in range(len(market_type)):
             print("\n>> 시장구분[%s]의 종목 가져오기 실행" % market_type[i])
             self.market_type = market_type[i]
