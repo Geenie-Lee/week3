@@ -192,7 +192,13 @@ class EquityLinkedWarrant(QAxWidget):
 
             self.stock_day_list.append(data.copy())
 
-            if output04 == 'KOSPI200' and output02 == '한국투자증' and (output06 == '20210412' or output06 == '20210517' or output06 == '20210614') and int(output11) > 0:
+            output06 = output06[:6]
+            is_lp = False
+            if output02 == '한국투자증' or output02 == '미래대우':
+                is_lp = True
+
+            if output04 == 'KOSPI200' and is_lp and (output06 == '202104' or output06 == '202105' or output06 == '202106') and int(output11) > 0:
+            # if output04 == 'KOSPI200' and output02 == '한국투자증' and (output06 == '20210412' or output06 == '20210517' or output06 == '20210614') and int(output11) > 0:
             # if output04 == 'KOSPI200' and (output02 == '한국투자증' or output02 == '미래대우') and (output06 == '20210118' or output06 == '20210216'):
             # if output04 == 'KOSPI200' and int(output11) > 100000:
                     print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (output01, output32, output02, output03, output04, output05, output06, output25, output07, output21, output08, output09, output10, output11))

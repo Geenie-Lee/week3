@@ -15,13 +15,13 @@ class Main():
     def __init__(self):
         self.app = QApplication(sys.argv)
 
-        self.anal = Analysis()
+        # self.anal = Analysis()
         # self.minute = Minute()
         # self.month = Month()
         # self.week = Week()
         # self.base = StockBaseInfo()
 #         self.real = TheReal(S)
-#         self.elw = EquityLinkedWarrant()
+        self.elw = EquityLinkedWarrant()
 #         self.opt30009 = OPT30009()
         self.app.exec_()
 
